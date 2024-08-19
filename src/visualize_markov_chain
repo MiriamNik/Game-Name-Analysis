@@ -1,0 +1,36 @@
+import matplotlib.pyplot as plt
+import numpy as np
+
+def visualize_markov_chain(markov_chain):
+    """Visualizes the Markov chain transitions."""
+    state_coords = {}
+    x_vals, y_vals, sizes = [], [], []
+    labels = []
+
+    # Assign coordinates to each state
+    i = 0
+    for prefix, suffix_dict in markov_chain.items():
+        if prefix not in state_coords:
+            state_coords[prefix] = i
+            i += 1
+
+        for suffix, count in suffix_dict.items():
+            if suffix not in state_coords:
+                state_coords[suffix] = i
+                i += 1
+
+            # Add to plot data
+            x_vals.append(state_coords[prefix])
+            y_vals.append(state_coords[suffix])
+            sizes.append(count)  # Use the count as the size of the point
+            labels.append(f"{prefix} -> {suffix}")
+
+    # Plotting
+    plt.figure(figsize=(14, 8))
+    scatter = plt.scatter(x_vals, y_vals, s=np.array(sizes) * 10, alpha=0.6, cmap='viridis')  # Scale sizes for visibility
+    plt.colorbar(scatter, label='Frequency of Transition')
+    plt.title('Markov Chain Transitions Visualization')
+    plt.xlabel('From State (Index)')
+    plt.ylabel('To State (Index)')
+    plt.grid(True)
+    plt.show()
