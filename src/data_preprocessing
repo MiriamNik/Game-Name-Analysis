@@ -1,0 +1,37 @@
+# preprocess_data.py
+
+import pandas as pd
+from google.colab import drive
+from text_processing import preprocess
+
+# Load the Data set from Google Drive
+drive.mount('/content/drive')
+df = pd.read_csv('googleplaystore.csv')
+
+# Filter the DataFrame for rows where 'Category' is 'GAME'
+game_df = df[df['Category'] == 'GAME']
+
+# Drop rows where 'Rating' is NaN
+game_df = game_df.dropna(subset=['Rating'])
+
+# Extract the 'App' column values into a list
+game_names = game_df['App'].tolist()
+
+# Apply the preprocess function to the filtered game names
+processed_names = []
+for name in game_names:
+    try:
+        tokens = preprocess(name)
+        if not tokens:
+            print(f"Warning: No tokens generated for game name: '{name}'")
+        processed_names.append(tokens)
+    except Exception as e:
+        print(f"Error processing game name: '{name}'. Error: {e}")
+
+# Flatten the list of lists to count word frequencies
+all_words = [word for tokens in processed_names for word in tokens]
+word_counts = Counter(all_words)
+
+# Save the processed names to a CSV file for inspection
+processed_df = pd.DataFrame({'Processed Names': [' '.join(tokens) for tokens in processed_names]})
+processed_df.to_csv('processed_game_names.csv', index=False)
