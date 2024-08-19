@@ -1,0 +1,28 @@
+import random
+from collections import defaultdict, Counter
+
+def build_markov_chain(words, order=1):
+    """Builds a Markov chain from a list of words with a specified order."""
+    markov_chain = defaultdict(Counter)
+    for name in words:
+        tokens = name.split()
+        for i in range(len(tokens) - order):
+            prefix = tuple(tokens[i:i+order])
+            suffix = tokens[i+order]
+            markov_chain[prefix][suffix] += 1
+    return markov_chain
+
+def generate_name(chain, min_length=3, max_length=5):
+    """Generates a name using the Markov chain."""
+    name = []
+    prefix = random.choice(list(chain.keys()))
+    name.extend(prefix)
+    while len(name) < max_length:
+        suffixes = chain.get(tuple(name[-1:]), None)
+        if not suffixes:
+            break
+        suffix = random.choices(list(suffixes.keys()), weights=list(suffixes.values()))[0]
+        name.append(suffix)
+        if len(name) >= min_length and random.random() > 0.5:
+            break
+    return ' '.join(name)
